@@ -38,8 +38,8 @@ public class GlobalExceptionHandler   {
             return new ResponseEntity<>(apiResponse, HttpStatus.UNAUTHORIZED);
         }
 
-    @ExceptionHandler(BatchLimitExceedException.class)
-    public ResponseEntity<ApiResponse> handleBatchLimitExceedException(BatchLimitExceedException ex){
+    @ExceptionHandler(BatchLimitException.class)
+    public ResponseEntity<ApiResponse> handleBatchLimitException(BatchLimitException ex){
         String message = ex.getMessage();
         ApiResponse apiResponse = new ApiResponse(message, false);
         return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);

@@ -4,7 +4,7 @@ import com.example.inventorymanagementsystem.dtos.ResourceUpdateDTO;
 import com.example.inventorymanagementsystem.dtos.request.resource.ResourceRequestDTO;
 import com.example.inventorymanagementsystem.dtos.response.resource.ResourceResponseDTO;
 import com.example.inventorymanagementsystem.exception.BarcodeGenerationException;
-import com.example.inventorymanagementsystem.exception.BatchLimitExceedException;
+import com.example.inventorymanagementsystem.exception.BatchLimitException;
 import com.example.inventorymanagementsystem.exception.InvalidBatchException;
 import com.example.inventorymanagementsystem.exception.ResourceNotFoundExceptionHandler;
 import com.example.inventorymanagementsystem.helper.BarcodeGenerator;
@@ -65,12 +65,23 @@ public class ResourceServiceImpl implements ResourceService {
                 batch = batchRepository.findById(dto.batchId())
                         .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.BATCH, "id", dto.batchId()));
 
+                // Validation if resourceType matches with the batch resourceType requirement
+                String incomingType = dto.resourceTypeName().trim().toLowerCase();
+                String batchType = batch.getType().getResourceTypeName().trim().toLowerCase();
+                if (!incomingType.equals(batchType)){
+                    throw new InvalidBatchException("Resource type '" + incomingType + "' does not meet batch's type '" + batchType + "'.");
+                }
+
                 int currentCount = resourceRepository.countByBatch(batch);
                 int incomingCount = requestDTOList.size();
+                int totalAfterAddition = currentCount + incomingCount;
 
-                if ((currentCount + incomingCount) > batch.getQuantity()) {
-                    throw new BatchLimitExceedException("Cannot add " + incomingCount + " resources. Batch capacity of " + batch.getQuantity() +
+                if (totalAfterAddition > batch.getQuantity()) {
+                    throw new BatchLimitException("Cannot add " + incomingCount + " resources. Batch capacity of " + batch.getQuantity() +
                             " would be exceeded (Currently " + currentCount + ").");
+                } else if (totalAfterAddition < batch.getQuantity()) {
+                    throw new BatchLimitException("Batch must be filled exactly with " + batch.getQuantity() +
+                            ", but you are adding " + totalAfterAddition + " resources.");
                 }
             }
 
