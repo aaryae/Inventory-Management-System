@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/master")
+@RequestMapping("/api/master")
 @Tag(name = "Master APIs", description = "meta data for resource")
 
 public class MasterDataController {
@@ -65,19 +65,19 @@ public class MasterDataController {
     }
 
     @PostMapping("/resource-type")
-    public ResponseEntity<ApiResponse> createResourceType(ResourceTypeRequestDTO dto){
+    public ResponseEntity<ApiResponse> createResourceType(@RequestBody ResourceTypeRequestDTO dto){
         ResourceTypeResponseDTO resourceType = masterDataService.createResourceType(dto);
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_ADDED, true, resourceType));
     }
 
     @PostMapping("/resource-class")
-    public ResponseEntity<ApiResponse> createResourceClass(ResourceClassRequestDTO dto){
+    public ResponseEntity<ApiResponse> createResourceClass(@RequestBody ResourceClassRequestDTO dto){
         ResourceClass resourceClass = masterDataService.createResourceClass(dto);
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_ADDED, true, resourceClass));
     }
 
     @PostMapping("/resource-status")
-    public ResponseEntity<ApiResponse> createResourceStatus(ResourceStatusRequestDTO dto){
+    public ResponseEntity<ApiResponse> createResourceStatus(@RequestBody ResourceStatusRequestDTO dto){
         ResourceStatus resourceStatus = masterDataService.createResourceStatus(dto);
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_ADDED, true, resourceStatus));
     }

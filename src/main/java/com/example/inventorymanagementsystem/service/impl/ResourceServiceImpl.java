@@ -3,9 +3,11 @@ package com.example.inventorymanagementsystem.service.impl;
 import com.example.inventorymanagementsystem.dtos.ResourceUpdateDTO;
 import com.example.inventorymanagementsystem.dtos.request.resource.ResourceRequestDTO;
 import com.example.inventorymanagementsystem.dtos.response.resource.ResourceResponseDTO;
+import com.example.inventorymanagementsystem.exception.BarcodeGenerationException;
 import com.example.inventorymanagementsystem.exception.BatchLimitExceedException;
 import com.example.inventorymanagementsystem.exception.InvalidBatchException;
 import com.example.inventorymanagementsystem.exception.ResourceNotFoundExceptionHandler;
+import com.example.inventorymanagementsystem.helper.BarcodeGenerator;
 import com.example.inventorymanagementsystem.helper.MessageConstant;
 import com.example.inventorymanagementsystem.model.*;
 import com.example.inventorymanagementsystem.repository.BatchRepository;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 
@@ -155,6 +158,19 @@ public class ResourceServiceImpl implements ResourceService {
         Resource resource = resourceRepository.findById(resourceId)
                 .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE, "id", resourceId));
         resourceRepository.delete(resource);
+    }
+
+    @Override
+    public String generateBarcode(Long resourceId) {
+        Resource resource = resourceRepository.findById(resourceId)
+                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE, "id", resourceId));
+
+        try {
+            byte[] barcodeBytes = BarcodeGenerator.generateBarcodeImage(String.valueOf(resource.getResourceId()), 300, 100);
+            return "data:image/png;base64," + Base64.getEncoder().encodeToString(barcodeBytes);
+        }catch (Exception e){
+            throw new BarcodeGenerationException(MessageConstant.BARCODE_GENERATION_FAILED + e.getMessage());
+        }
     }
 
     private static final Random r = new Random();
