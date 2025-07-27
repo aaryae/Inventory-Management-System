@@ -23,6 +23,8 @@ public final class EmployeeMapper {
     }
     //Enum for Assignment Status
     public enum AssignmentStatus {
+        PENDING_CONFIRMATION,
+        CONFIRMED,
         ACTIVE,
         RETURNED,
         OVERDUE,
