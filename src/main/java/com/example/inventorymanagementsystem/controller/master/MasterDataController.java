@@ -12,6 +12,7 @@ import com.example.inventorymanagementsystem.model.ResourceStatus;
 import com.example.inventorymanagementsystem.model.ResourceType;
 import com.example.inventorymanagementsystem.service.MasterDataService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,19 +66,19 @@ public class MasterDataController {
     }
 
     @PostMapping("/resource-type")
-    public ResponseEntity<ApiResponse> createResourceType(@RequestBody ResourceTypeRequestDTO dto){
+    public ResponseEntity<ApiResponse> createResourceType(@RequestBody @Valid ResourceTypeRequestDTO dto){
         ResourceTypeResponseDTO resourceType = masterDataService.createResourceType(dto);
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_ADDED, true, resourceType));
     }
 
     @PostMapping("/resource-class")
-    public ResponseEntity<ApiResponse> createResourceClass(@RequestBody ResourceClassRequestDTO dto){
+    public ResponseEntity<ApiResponse> createResourceClass(@RequestBody @Valid ResourceClassRequestDTO dto){
         ResourceClass resourceClass = masterDataService.createResourceClass(dto);
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_ADDED, true, resourceClass));
     }
 
     @PostMapping("/resource-status")
-    public ResponseEntity<ApiResponse> createResourceStatus(@RequestBody ResourceStatusRequestDTO dto){
+    public ResponseEntity<ApiResponse> createResourceStatus(@RequestBody @Valid ResourceStatusRequestDTO dto){
         ResourceStatus resourceStatus = masterDataService.createResourceStatus(dto);
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_ADDED, true, resourceStatus));
     }

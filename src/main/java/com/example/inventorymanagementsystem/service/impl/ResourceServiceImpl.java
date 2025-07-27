@@ -3,10 +3,7 @@ package com.example.inventorymanagementsystem.service.impl;
 import com.example.inventorymanagementsystem.dtos.ResourceUpdateDTO;
 import com.example.inventorymanagementsystem.dtos.request.resource.ResourceRequestDTO;
 import com.example.inventorymanagementsystem.dtos.response.resource.ResourceResponseDTO;
-import com.example.inventorymanagementsystem.exception.BarcodeGenerationException;
-import com.example.inventorymanagementsystem.exception.BatchLimitException;
-import com.example.inventorymanagementsystem.exception.InvalidBatchException;
-import com.example.inventorymanagementsystem.exception.ResourceNotFoundExceptionHandler;
+import com.example.inventorymanagementsystem.exception.*;
 import com.example.inventorymanagementsystem.helper.BarcodeGenerator;
 import com.example.inventorymanagementsystem.helper.MessageConstant;
 import com.example.inventorymanagementsystem.model.*;
@@ -14,8 +11,10 @@ import com.example.inventorymanagementsystem.repository.BatchRepository;
 import com.example.inventorymanagementsystem.repository.ResourceRepository;
 import com.example.inventorymanagementsystem.service.MasterDataService;
 import com.example.inventorymanagementsystem.service.ResourceService;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -147,15 +146,15 @@ public class ResourceServiceImpl implements ResourceService {
                 .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE, "id", resourceId));
 
 
-        // Validation of new status
-        ResourceStatus status = masterDataService.getResourceStatusByName(updateDTO.resourceStatusName());
-
-        resource.setModel(updateDTO.model());
-        resource.setBrand(updateDTO.brand());
-        resource.setSpecification(updateDTO.specification());
-        resource.setPurchaseDate(updateDTO.purchaseDate());
-        resource.setWarrantyExpiry(updateDTO.warrantyExpiry());
-        resource.setResourceStatus(status);
+        if (updateDTO.model() != null) resource.setModel(updateDTO.model());
+        if (updateDTO.brand() != null) resource.setBrand(updateDTO.brand());
+        if (updateDTO.specification() != null) resource.setSpecification(updateDTO.specification());
+        if (updateDTO.purchaseDate() != null) resource.setPurchaseDate(updateDTO.purchaseDate());
+        if (updateDTO.warrantyExpiry() != null) resource.setWarrantyExpiry(updateDTO.warrantyExpiry());
+        if (updateDTO.resourceStatusName() != null) {
+            ResourceStatus status = masterDataService.getResourceStatusByName(updateDTO.resourceStatusName());
+            resource.setResourceStatus(status);
+        }
 
         // Save and update the resources
         Resource updated = resourceRepository.save(resource);
@@ -183,6 +182,82 @@ public class ResourceServiceImpl implements ResourceService {
             throw new BarcodeGenerationException(MessageConstant.BARCODE_GENERATION_FAILED + e.getMessage());
         }
     }
+
+    public List<ResourceRequestDTO> parseExcelToResources(MultipartFile file) {
+        List<ResourceRequestDTO> resources = new ArrayList<>();
+
+        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // Skip header row
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+
+                if (row == null || row.getCell(0) == null || getString(row.getCell(0)).isBlank()) continue;
+
+                ResourceRequestDTO dto = new ResourceRequestDTO(
+                        getString(row.getCell(0)), // brand
+                        getString(row.getCell(1)), // model
+                        getString(row.getCell(2)), // specification
+                        getLocalDate(row.getCell(3)), // purchaseDate
+                        getLocalDate(row.getCell(4)), // warrantyExpiry
+                        getString(row.getCell(5)), // resourceTypeName
+                        getString(row.getCell(6)), // resourceClassName
+                        getString(row.getCell(7)), // resourceStatusName
+                        getLong(row.getCell(8)) // batchId (nullable)
+                );
+
+                resources.add(dto);
+            }
+        } catch (Exception e) {
+            throw new ExcelParsingException("Failed to parse Excel file: " + e.getMessage());
+        }
+
+        return resources;
+    }
+
+    // 1. Safely extract String value
+    private String getString(Cell cell) {
+        if (cell == null) return "";
+
+        return switch (cell.getCellType()) {
+            case STRING -> cell.getStringCellValue().trim();
+            case NUMERIC -> String.valueOf(cell.getNumericCellValue());
+            case BOOLEAN -> String.valueOf(cell.getBooleanCellValue());
+            default -> "";
+        };
+    }
+
+    // 2. Safely extract LocalDate from a date-formatted cell
+    private LocalDate getLocalDate(Cell cell) {
+        if (cell == null) return null;
+
+        if (cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
+            return cell.getLocalDateTimeCellValue().toLocalDate();
+        }
+
+        return null;
+    }
+
+    // 3. Safely extract Long value from number or numeric string
+    private Long getLong(Cell cell) {
+        if (cell == null) return null;
+
+        if (cell.getCellType() == CellType.NUMERIC) {
+            return (long) cell.getNumericCellValue();
+        }
+
+        if (cell.getCellType() == CellType.STRING) {
+            try {
+                return Long.parseLong(cell.getStringCellValue().trim());
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
 
     private static final Random r = new Random();
     public String generateUniqueResourceCode(String typePrefix) {
