@@ -43,7 +43,7 @@ public class Resource {
     @Column(name = "purchaseDate", nullable = false, columnDefinition = "text")
     private LocalDate purchaseDate;
 
-    @Column(name = "warrantyExpiry", nullable = false, columnDefinition = "text")
+    @Column(name = "warrantyExpiry", columnDefinition = "text")
     private LocalDate warrantyExpiry;
 
     @CreatedDate

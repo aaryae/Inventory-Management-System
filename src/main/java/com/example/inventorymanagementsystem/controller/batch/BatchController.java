@@ -8,6 +8,7 @@ import com.example.inventorymanagementsystem.helper.MessageConstant;
 import com.example.inventorymanagementsystem.service.BatchService;
 import com.example.inventorymanagementsystem.service.impl.BatchServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,7 @@ public class BatchController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse> createBatch(@RequestBody BatchRequestDTO requestDTO){
+    public ResponseEntity<ApiResponse> createBatch(@RequestBody @Valid BatchRequestDTO requestDTO){
         BatchResponseDTO responseDTO = batchService.createBatch(requestDTO);
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_ADDED, true, responseDTO));
     }

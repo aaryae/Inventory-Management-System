@@ -1,8 +1,8 @@
 package com.example.inventorymanagementsystem.controller.resource;
 
-import com.beust.ah.A;
 import com.example.inventorymanagementsystem.dtos.ResourceUpdateDTO;
 import com.example.inventorymanagementsystem.dtos.request.resource.ResourceRequestDTO;
+import com.example.inventorymanagementsystem.dtos.request.resource.ResourceRequestWrapperDTO;
 import com.example.inventorymanagementsystem.dtos.response.ApiResponse;
 import com.example.inventorymanagementsystem.dtos.response.resource.ResourceResponseDTO;
 import com.example.inventorymanagementsystem.helper.MessageConstant;
@@ -10,6 +10,7 @@ import com.example.inventorymanagementsystem.service.ResourceService;
 import com.example.inventorymanagementsystem.service.impl.ResourceServiceImpl;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,11 +31,19 @@ public class ResourceController {
     }
 
 
+//    @PostMapping
+//    public ResponseEntity<ApiResponse> createResources(@RequestBody @Valid List<@Valid ResourceRequestDTO> requestDTOList){
+//        List<ResourceResponseDTO> responseDTOList = resourceService.createResources(requestDTOList);
+//        return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_ADDED, true, responseDTOList));
+//    }
+
     @PostMapping
-    public ResponseEntity<ApiResponse> createResources(@RequestBody List<ResourceRequestDTO> requestDTOList){
-        List<ResourceResponseDTO> responseDTOList = resourceService.createResources(requestDTOList);
+    public ResponseEntity<ApiResponse> createResources(@RequestBody @Valid ResourceRequestWrapperDTO wrapper){
+        List<ResourceResponseDTO> responseDTOList = resourceService.createResources(wrapper.resources());
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_ADDED, true, responseDTOList));
     }
+
+
 
     @GetMapping("/{resourceId}")
     public ResponseEntity<ApiResponse> getResourceById(@PathVariable("resourceId") Long resourceId){
@@ -54,7 +63,7 @@ public class ResourceController {
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_FETCHED, true, responseDTOList));
     }
 
-    @PutMapping("/{resourceId}")
+    @PatchMapping("/{resourceId}")
     public ResponseEntity<ApiResponse> updateResource(@PathVariable("resourceId") Long resourceId, @RequestBody ResourceUpdateDTO resourceUpdate){
         ResourceResponseDTO responseDTO = resourceService.updateResource(resourceId, resourceUpdate);
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_UPDATED, true, responseDTO));

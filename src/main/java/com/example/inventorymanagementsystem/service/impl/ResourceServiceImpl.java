@@ -147,14 +147,17 @@ public class ResourceServiceImpl implements ResourceService {
 
 
         // Validation of new status
-        ResourceStatus status = masterDataService.getResourceStatusByName(updateDTO.resourceStatusName());
+//        ResourceStatus status = masterDataService.getResourceStatusByName(updateDTO.resourceStatusName());
 
-        resource.setModel(updateDTO.model());
-        resource.setBrand(updateDTO.brand());
-        resource.setSpecification(updateDTO.specification());
-        resource.setPurchaseDate(updateDTO.purchaseDate());
-        resource.setWarrantyExpiry(updateDTO.warrantyExpiry());
-        resource.setResourceStatus(status);
+        if (updateDTO.model() != null) resource.setModel(updateDTO.model());
+        if (updateDTO.brand() != null) resource.setBrand(updateDTO.brand());
+        if (updateDTO.specification() != null) resource.setSpecification(updateDTO.specification());
+        if (updateDTO.purchaseDate() != null) resource.setPurchaseDate(updateDTO.purchaseDate());
+        if (updateDTO.warrantyExpiry() != null) resource.setWarrantyExpiry(updateDTO.warrantyExpiry());
+        if (updateDTO.resourceStatusName() != null) {
+            ResourceStatus status = masterDataService.getResourceStatusByName(updateDTO.resourceStatusName());
+            resource.setResourceStatus(status);
+        }
 
         // Save and update the resources
         Resource updated = resourceRepository.save(resource);
