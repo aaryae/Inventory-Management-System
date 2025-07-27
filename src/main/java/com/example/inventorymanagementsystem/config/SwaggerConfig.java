@@ -23,10 +23,6 @@ public class SwaggerConfig {
                         .title("Inventory Management API")
                         .version("1.0")
                         .description("API documentation for Inventory Management System"))
-//                .tags(Arrays.asList(
-////                        new Tag().name("Health Checker"),
-////                        new Tag().name("Authentication")
-//                ))
                 .addSecurityItem(new io.swagger.v3.oas.models.security.SecurityRequirement().addList("bearerAuth"))
                 .components(new io.swagger.v3.oas.models.Components()
                         .addSecuritySchemes("bearerAuth",
