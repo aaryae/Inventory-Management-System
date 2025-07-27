@@ -17,4 +17,5 @@ public final class MessageConstant {
     public static final String RESOURCE_CLASS = "ResourceClass";
     public static final String RESOURCE_STATUS = "ResourceStatus";
     public static final String EMPLOYEE = "Employee";
+    public static final String BARCODE_GENERATION_FAILED = "Barcode Generation Failed";
 }
