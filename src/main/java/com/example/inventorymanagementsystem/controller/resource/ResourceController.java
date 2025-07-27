@@ -31,19 +31,11 @@ public class ResourceController {
     }
 
 
-//    @PostMapping
-//    public ResponseEntity<ApiResponse> createResources(@RequestBody @Valid List<@Valid ResourceRequestDTO> requestDTOList){
-//        List<ResourceResponseDTO> responseDTOList = resourceService.createResources(requestDTOList);
-//        return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_ADDED, true, responseDTOList));
-//    }
-
     @PostMapping
     public ResponseEntity<ApiResponse> createResources(@RequestBody @Valid ResourceRequestWrapperDTO wrapper){
         List<ResourceResponseDTO> responseDTOList = resourceService.createResources(wrapper.resources());
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_ADDED, true, responseDTOList));
     }
-
-
 
     @GetMapping("/{resourceId}")
     public ResponseEntity<ApiResponse> getResourceById(@PathVariable("resourceId") Long resourceId){

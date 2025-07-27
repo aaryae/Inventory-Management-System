@@ -146,9 +146,6 @@ public class ResourceServiceImpl implements ResourceService {
                 .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE, "id", resourceId));
 
 
-        // Validation of new status
-//        ResourceStatus status = masterDataService.getResourceStatusByName(updateDTO.resourceStatusName());
-
         if (updateDTO.model() != null) resource.setModel(updateDTO.model());
         if (updateDTO.brand() != null) resource.setBrand(updateDTO.brand());
         if (updateDTO.specification() != null) resource.setSpecification(updateDTO.specification());
