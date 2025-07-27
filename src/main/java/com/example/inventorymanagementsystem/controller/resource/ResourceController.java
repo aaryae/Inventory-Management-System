@@ -1,5 +1,6 @@
 package com.example.inventorymanagementsystem.controller.resource;
 
+import com.beust.ah.A;
 import com.example.inventorymanagementsystem.dtos.ResourceUpdateDTO;
 import com.example.inventorymanagementsystem.dtos.request.resource.ResourceRequestDTO;
 import com.example.inventorymanagementsystem.dtos.response.ApiResponse;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/resources")
+@RequestMapping("/api/resources")
 @Tag(name = "Resource APIs", description = "crud for resources")
 
 public class ResourceController {
@@ -61,4 +62,11 @@ public class ResourceController {
         resourceService.deleteResource(resourceId);
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_DELETED, true));
     }
+
+    @GetMapping("/{resourceId}/barcode")
+    public ResponseEntity<ApiResponse> getBarcode(@PathVariable("resourceId") Long resourceId){
+        String barcodeBase64 = resourceService.generateBarcode(resourceId);
+        return ResponseEntity.ok().body(new ApiResponse(MessageConstant.SUCCESSFULLY_FETCHED, true, barcodeBase64));
+    }
+
 }

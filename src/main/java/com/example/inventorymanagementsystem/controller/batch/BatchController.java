@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/batches")
+@RequestMapping("/api/batches")
 @Tag(name = "Batch APIs", description = "APIs for batch")
 
 public class BatchController {

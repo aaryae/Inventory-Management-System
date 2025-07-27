@@ -3,9 +3,11 @@ package com.example.inventorymanagementsystem.service.impl;
 import com.example.inventorymanagementsystem.dtos.ResourceUpdateDTO;
 import com.example.inventorymanagementsystem.dtos.request.resource.ResourceRequestDTO;
 import com.example.inventorymanagementsystem.dtos.response.resource.ResourceResponseDTO;
-import com.example.inventorymanagementsystem.exception.BatchLimitExceedException;
+import com.example.inventorymanagementsystem.exception.BarcodeGenerationException;
+import com.example.inventorymanagementsystem.exception.BatchLimitException;
 import com.example.inventorymanagementsystem.exception.InvalidBatchException;
 import com.example.inventorymanagementsystem.exception.ResourceNotFoundExceptionHandler;
+import com.example.inventorymanagementsystem.helper.BarcodeGenerator;
 import com.example.inventorymanagementsystem.helper.MessageConstant;
 import com.example.inventorymanagementsystem.model.*;
 import com.example.inventorymanagementsystem.repository.BatchRepository;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 
@@ -62,12 +65,23 @@ public class ResourceServiceImpl implements ResourceService {
                 batch = batchRepository.findById(dto.batchId())
                         .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.BATCH, "id", dto.batchId()));
 
+                // Validation if resourceType matches with the batch resourceType requirement
+                String incomingType = dto.resourceTypeName().trim().toLowerCase();
+                String batchType = batch.getType().getResourceTypeName().trim().toLowerCase();
+                if (!incomingType.equals(batchType)){
+                    throw new InvalidBatchException("Resource type '" + incomingType + "' does not meet batch's type '" + batchType + "'.");
+                }
+
                 int currentCount = resourceRepository.countByBatch(batch);
                 int incomingCount = requestDTOList.size();
+                int totalAfterAddition = currentCount + incomingCount;
 
-                if ((currentCount + incomingCount) > batch.getQuantity()) {
-                    throw new BatchLimitExceedException("Cannot add " + incomingCount + " resources. Batch capacity of " + batch.getQuantity() +
+                if (totalAfterAddition > batch.getQuantity()) {
+                    throw new BatchLimitException("Cannot add " + incomingCount + " resources. Batch capacity of " + batch.getQuantity() +
                             " would be exceeded (Currently " + currentCount + ").");
+                } else if (totalAfterAddition < batch.getQuantity()) {
+                    throw new BatchLimitException("Batch must be filled exactly with " + batch.getQuantity() +
+                            ", but you are adding " + totalAfterAddition + " resources.");
                 }
             }
 
@@ -155,6 +169,19 @@ public class ResourceServiceImpl implements ResourceService {
         Resource resource = resourceRepository.findById(resourceId)
                 .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE, "id", resourceId));
         resourceRepository.delete(resource);
+    }
+
+    @Override
+    public String generateBarcode(Long resourceId) {
+        Resource resource = resourceRepository.findById(resourceId)
+                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE, "id", resourceId));
+
+        try {
+            byte[] barcodeBytes = BarcodeGenerator.generateBarcodeImage(String.valueOf(resource.getResourceId()), 300, 100);
+            return "data:image/png;base64," + Base64.getEncoder().encodeToString(barcodeBytes);
+        }catch (Exception e){
+            throw new BarcodeGenerationException(MessageConstant.BARCODE_GENERATION_FAILED + e.getMessage());
+        }
     }
 
     private static final Random r = new Random();

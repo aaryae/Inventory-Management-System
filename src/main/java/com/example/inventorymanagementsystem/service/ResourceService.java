@@ -20,4 +20,5 @@ public interface ResourceService {
 
     void deleteResource(Long resourceId);
 
+    String generateBarcode(Long resourceId);
 }

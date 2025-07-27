@@ -4,8 +4,9 @@ import com.example.inventorymanagementsystem.dtos.request.PasswordResetRequest;
 import com.example.inventorymanagementsystem.dtos.request.security.LoginRequest;
 import com.example.inventorymanagementsystem.dtos.request.security.RefreshTokenRequest;
 import com.example.inventorymanagementsystem.dtos.request.security.RegisterRequest;
-import com.example.inventorymanagementsystem.dtos.response.ApiResponse;
 import com.example.inventorymanagementsystem.exception.DataNotFoundException;
+import com.example.inventorymanagementsystem.exception.DuplicateResourceException;
+import com.example.inventorymanagementsystem.exception.ResourceNotFoundExceptionHandler;
 import com.example.inventorymanagementsystem.exception.ValidationException;
 import com.example.inventorymanagementsystem.helper.Role;
 import com.example.inventorymanagementsystem.model.User;
@@ -13,12 +14,7 @@ import com.example.inventorymanagementsystem.repository.security.UserRepository;
 import com.example.inventorymanagementsystem.service.MailService;
 import com.example.inventorymanagementsystem.service.security.AuthService;
 import com.example.inventorymanagementsystem.service.security.JwtService;
-import com.example.inventorymanagementsystem.exception.DuplicateResourceException;
-import com.example.inventorymanagementsystem.exception.ResourceNotFoundExceptionHandler;
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -80,6 +76,7 @@ public class AuthServiceImpl implements AuthService {
         Map<String, String> response = new HashMap<>();
         response.put("accessToken", token);
         response.put("refreshToken", refreshToken);
+        response.put("username",user.getUsername());
         return response;
     }
 
