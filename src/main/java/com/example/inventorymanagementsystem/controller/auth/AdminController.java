@@ -6,7 +6,6 @@ import com.example.inventorymanagementsystem.dtos.response.security.UserResponse
 import com.example.inventorymanagementsystem.service.security.AdminService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +20,7 @@ public class AdminController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
-    public ResponseEntity<ApiResponse> getAllUsers(Pageable pageable) {
+    public ResponseEntity<ApiResponse> getAllUsers() {
         return ResponseEntity.ok(new ApiResponse("Successfully fetched users.", true, adminService.getAllUsers()));
     }
 
