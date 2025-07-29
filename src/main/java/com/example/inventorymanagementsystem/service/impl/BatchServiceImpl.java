@@ -110,6 +110,9 @@ public class BatchServiceImpl implements BatchService {
                 resource.getResourceClass().getResourceClassName(),
                 resource.getResourceStatus().getResourceStatusName(),
                 resource.getBatch() != null ? resource.getBatch().getBatchCode() : null,
+                resource.getUnitPrice(),
+                resource.getSerialNumber(),
+                resource.getRemarks(),
                 resource.getCreatedAt(),
                 resource.getUpdatedAt()
             )).toList();

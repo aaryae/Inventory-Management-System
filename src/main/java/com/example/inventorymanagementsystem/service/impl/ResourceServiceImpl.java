@@ -95,6 +95,9 @@ public class ResourceServiceImpl implements ResourceService {
             resource.setSpecification(dto.specification());
             resource.setPurchaseDate(dto.purchaseDate());
             resource.setWarrantyExpiry(dto.warrantyExpiry());
+            resource.setUnitPrice(dto.unitPrice());
+            resource.setSerialNumber(dto.serialNumber());
+            resource.setRemarks(dto.remarks());
             resource.setResourceCode(resourceCode);
             resource.setType(type);
             resource.setResourceClass(resourceClass);
@@ -204,7 +207,10 @@ public class ResourceServiceImpl implements ResourceService {
                         getString(row.getCell(5)), // resourceTypeName
                         getString(row.getCell(6)), // resourceClassName
                         getString(row.getCell(7)), // resourceStatusName
-                        getLong(row.getCell(8)) // batchId (nullable)
+                        getDouble(row.getCell(8)),  // unitPrice
+                        getString(row.getCell(9)), // serialNumber
+                        getString(row.getCell(10)), // remarks
+                        getLong(row.getCell(11)) // batchId (nullable)
                 );
 
                 resources.add(dto);
@@ -258,6 +264,21 @@ public class ResourceServiceImpl implements ResourceService {
         return null;
     }
 
+    private Double getDouble(Cell cell) {
+        if (cell == null) return null;
+        return switch (cell.getCellType()) {
+            case NUMERIC -> cell.getNumericCellValue();
+            case STRING -> {
+                try {
+                    yield Double.parseDouble(cell.getStringCellValue().trim());
+                } catch (NumberFormatException e) {
+                    yield null;
+                }
+            }
+            default -> null;
+        };
+    }
+
 
     private static final Random r = new Random();
     public String generateUniqueResourceCode(String typePrefix) {
@@ -279,6 +300,9 @@ public class ResourceServiceImpl implements ResourceService {
                 resource.getResourceClass().getResourceClassName(),
                 resource.getResourceStatus().getResourceStatusName(),
                 resource.getBatch() != null ? resource.getBatch().getBatchCode() : null,
+                resource.getUnitPrice(),
+                resource.getSerialNumber(),
+                resource.getRemarks(),
                 resource.getCreatedAt(),
                 resource.getUpdatedAt()
         );
