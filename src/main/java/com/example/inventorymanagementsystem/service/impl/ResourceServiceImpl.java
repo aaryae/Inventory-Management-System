@@ -62,7 +62,7 @@ public class ResourceServiceImpl implements ResourceService {
             Batch batch = null;
             if (dto.batchId() != null) {
                 batch = batchRepository.findById(dto.batchId())
-                        .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.BATCH, "id", dto.batchId()));
+                        .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.BATCH, "id", dto.batchId()));
 
                 // Validation if resourceType matches with the batch resourceType requirement
                 String incomingType = dto.resourceTypeName().trim().toLowerCase();
@@ -114,7 +114,7 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public ResourceResponseDTO getResourceById(Long resourceId) {
         Resource resource = resourceRepository.findById(resourceId)
-                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE, "id", resourceId));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.RESOURCE, "id", resourceId));
 
         return convertToDto(resource);
     }
@@ -143,7 +143,7 @@ public class ResourceServiceImpl implements ResourceService {
     public ResourceResponseDTO updateResource(Long resourceId, ResourceUpdateDTO updateDTO) {
         // Fetches the existing resource
         Resource resource = resourceRepository.findById(resourceId)
-                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE, "id", resourceId));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.RESOURCE, "id", resourceId));
 
 
         if (updateDTO.model() != null) resource.setModel(updateDTO.model());
@@ -166,14 +166,14 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public void deleteResource(Long resourceId) {
         Resource resource = resourceRepository.findById(resourceId)
-                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE, "id", resourceId));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.RESOURCE, "id", resourceId));
         resourceRepository.delete(resource);
     }
 
     @Override
     public String generateBarcode(Long resourceId) {
         Resource resource = resourceRepository.findById(resourceId)
-                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE, "id", resourceId));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.RESOURCE, "id", resourceId));
 
         try {
             byte[] barcodeBytes = BarcodeGenerator.generateBarcodeImage(String.valueOf(resource.getResourceId()), 300, 100);

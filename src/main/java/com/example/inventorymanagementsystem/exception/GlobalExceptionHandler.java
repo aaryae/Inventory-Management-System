@@ -22,15 +22,15 @@ public class GlobalExceptionHandler   {
         return new ResponseEntity<>(apiResponse, HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(ResourceNotFoundExceptionHandler.class)
-    public ResponseEntity<ApiResponse> handleResourceNotFoundExceptionHandler(ResourceNotFoundExceptionHandler ex) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse> handleResourceNotFoundExceptionHandler(ResourceNotFoundException ex) {
         String message = ex.getMessage();
         ApiResponse apiResponse = new ApiResponse(message, false);
         return new ResponseEntity<>(apiResponse, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(EmployeeNotFoundExceptionHandler.class)
-    public ResponseEntity<ApiResponse> handleEmployeeNotFoundExceptionHandler(EmployeeNotFoundExceptionHandler ex) {
+    @ExceptionHandler(EmployeeNotFoundException.class)
+    public ResponseEntity<ApiResponse> handleEmployeeNotFoundException(EmployeeNotFoundException ex) {
         String message = ex.getMessage();
         ApiResponse apiResponse = new ApiResponse(message, false);
         return new ResponseEntity<>(apiResponse, HttpStatus.NOT_FOUND);

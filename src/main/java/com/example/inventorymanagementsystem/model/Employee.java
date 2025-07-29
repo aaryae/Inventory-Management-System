@@ -14,7 +14,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -57,5 +56,5 @@ public class Employee {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "employee",  cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Assignment> assignments = new ArrayList<>();
+    private List<Assignment> assignments;
 }

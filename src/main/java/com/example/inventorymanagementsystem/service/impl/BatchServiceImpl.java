@@ -3,7 +3,7 @@ package com.example.inventorymanagementsystem.service.impl;
 import com.example.inventorymanagementsystem.dtos.request.BatchRequestDTO;
 import com.example.inventorymanagementsystem.dtos.response.resource.BatchResponseDTO;
 import com.example.inventorymanagementsystem.dtos.response.resource.ResourceResponseDTO;
-import com.example.inventorymanagementsystem.exception.ResourceNotFoundExceptionHandler;
+import com.example.inventorymanagementsystem.exception.ResourceNotFoundException;
 import com.example.inventorymanagementsystem.helper.MessageConstant;
 import com.example.inventorymanagementsystem.model.Batch;
 import com.example.inventorymanagementsystem.model.ResourceType;
@@ -64,7 +64,7 @@ public class BatchServiceImpl implements BatchService {
     @Override
     public BatchResponseDTO getBatchById(Long batchId) {
         Batch batch = batchRepository.findById(batchId)
-                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.BATCH, "id", batchId));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.BATCH, "id", batchId));
 
         return new BatchResponseDTO(
                 batch.getBatchId(),
@@ -92,7 +92,7 @@ public class BatchServiceImpl implements BatchService {
     public List<ResourceResponseDTO> getResourcesByBatchId(Long batchId) {
         // Validation of batch Id
         Batch batch = batchRepository.findById(batchId)
-                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.BATCH, "id", batchId));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.BATCH, "id", batchId));
 
         // Fetches resources assigned to the batch
         List<Resource> resources = resourceRepository.findByBatch(batch);
