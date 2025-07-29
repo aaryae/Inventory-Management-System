@@ -1,6 +1,9 @@
 package com.example.inventorymanagementsystem.config;
 
 import com.example.inventorymanagementsystem.security.filters.JwtAuthenticationFilter;
+import com.example.inventorymanagementsystem.security.filters.OAuthValidationFilter;
+import com.example.inventorymanagementsystem.security.handlers.CustomOAuth2SuccessHandler;
+import com.example.inventorymanagementsystem.service.impl.CustomOidcUserService;
 import com.example.inventorymanagementsystem.service.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -29,10 +32,13 @@ import java.util.List;
 public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
+    private final JwtService jwtService;
+    private final CustomOAuth2SuccessHandler successHandler;
+    private final CustomOidcUserService customOidcUserService;
+    private final OAuthValidationFilter oAuthValidationFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   JwtService jwtService) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         JwtAuthenticationFilter jwtAuthFilter = new JwtAuthenticationFilter(jwtService, userDetailsService);
 
@@ -41,10 +47,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "api/auth/register",
-                                "api/auth/login",
+                                "/api/auth/register",
+                                "/api/auth/login",
                                 "/ping",
-                                "api/auth/request-reset/**",
+                                "/api/auth/request-reset/**",
                                 "/api/auth/verify-reset/**",
                                 "/api/auth/verify/**",
                                 "/swagger-ui/**",
@@ -54,13 +60,20 @@ public class SecurityConfig {
                                 "/docs/**",
                                 "/swagger-resources/**"
                         ).permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .oidcUserService(customOidcUserService)
+                        )
+                        .successHandler(successHandler)
+                )
+                .addFilterBefore(oAuthValidationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

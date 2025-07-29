@@ -70,7 +70,7 @@ public class AuthServiceImpl implements AuthService {
             mailService.sendPasswordAboutToExpire(user);
         }
 
-        String token = jwtService.generateToken(user);
+        String token = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
         Map<String, String> response = new HashMap<>();
@@ -104,23 +104,24 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Map<String, String> refreshToken(RefreshTokenRequest request) {
-        String email = jwtService.validateToken(request.accessToken());
+        String refreshToken = request.refreshToken();
 
-        if (email.startsWith("error:")) {
-            throw new ValidationException("Invalid refresh token");
+        if (jwtService.isAccessToken(refreshToken)) {
+            throw new ValidationException("Invalid refresh token: received access token instead.");
         }
+
+        String email = jwtService.extractAllClaims(refreshToken).getSubject();
+
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundExceptionHandler("User", "email", email));
 
-        String newAccessToken = jwtService.generateRefreshToken(user);
+        String newAccessToken = jwtService.generateAccessToken(user);
 
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", newAccessToken);
         return tokens;
     }
-
-
 }
 
 

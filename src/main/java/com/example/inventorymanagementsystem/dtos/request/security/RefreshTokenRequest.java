@@ -6,6 +6,6 @@ import lombok.Builder;
 
 
 @Builder
-public record RefreshTokenRequest(@NotNull String accessToken) {
+public record RefreshTokenRequest(@NotNull String refreshToken) {
 
 }
