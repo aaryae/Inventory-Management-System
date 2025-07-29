@@ -6,7 +6,7 @@ import com.example.inventorymanagementsystem.dtos.request.resource.ResourceTypeR
 import com.example.inventorymanagementsystem.dtos.response.resource.ResourceClassResponseDTO;
 import com.example.inventorymanagementsystem.dtos.response.resource.ResourceTypeResponseDTO;
 import com.example.inventorymanagementsystem.exception.DuplicateResourceException;
-import com.example.inventorymanagementsystem.exception.ResourceNotFoundException;
+import com.example.inventorymanagementsystem.exception.ResourceNotFoundExceptionHandler;
 import com.example.inventorymanagementsystem.helper.MessageConstant;
 import com.example.inventorymanagementsystem.helper.ResourceMapper;
 import com.example.inventorymanagementsystem.model.ResourceClass;
@@ -55,19 +55,19 @@ public class MasterDataServiceImpl implements MasterDataService {
     @Override
     public ResourceType getResourceTypeById(Long resourceId) {
         return resourceTypeRepository.findById(resourceId)
-                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.RESOURCE_TYPE, "id", resourceId));
+                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE_TYPE, "id", resourceId));
     }
 
     @Override
     public ResourceClass getResourceClassById(Long resourceId) {
         return resourceClassRepository.findById(resourceId)
-                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.RESOURCE_CLASS, "id", resourceId));
+                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE_CLASS, "id", resourceId));
     }
 
     @Override
     public ResourceStatus getResourceStatusById(Long resourceId) {
         return resourceStatusRepository.findById(resourceId)
-                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.RESOURCE_STATUS, "id", resourceId));
+                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE_STATUS, "id", resourceId));
     }
 
     @Override
@@ -77,7 +77,7 @@ public class MasterDataServiceImpl implements MasterDataService {
         }
 
         ResourceClass resourceClass = resourceClassRepository.findByResourceClassNameIgnoreCase(dto.resourceClassName())
-                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.RESOURCE_CLASS, "id", dto.resourceClassName()));
+                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE_CLASS, "id", dto.resourceClassName()));
 
 
         ResourceType resourceType = new ResourceType();
@@ -111,19 +111,19 @@ public class MasterDataServiceImpl implements MasterDataService {
     @Override
     public ResourceType getResourceTypeByName(String resourceTypeName) {
         return resourceTypeRepository.findByResourceTypeNameIgnoreCase(resourceTypeName)
-                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.RESOURCE_TYPE, "name", resourceTypeName));
+                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE_TYPE, "name", resourceTypeName));
     }
 
     @Override
     public ResourceClass getResourceClassByName(String resourceClassName) {
         return resourceClassRepository.findByResourceClassNameIgnoreCase(resourceClassName)
-                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.RESOURCE_CLASS, "name", resourceClassName));
+                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE_CLASS, "name", resourceClassName));
     }
 
     @Override
     public ResourceStatus getResourceStatusByName(String resourceStatusName) {
         return resourceStatusRepository.findByResourceStatusNameIgnoreCase(resourceStatusName)
-                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.RESOURCE_STATUS, "name", resourceStatusName));
+                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE_STATUS, "name", resourceStatusName));
     }
 
     @Override
