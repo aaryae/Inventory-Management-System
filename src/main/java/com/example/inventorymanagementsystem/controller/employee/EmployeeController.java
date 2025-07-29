@@ -42,10 +42,16 @@ public class EmployeeController {
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_FETCHED,true,employeeResponseDTO));
     }
 
-    @GetMapping(params = "email")
-    public ResponseEntity<ApiResponse> getEmployeeByEmail(@RequestParam("email") String email){
+    @GetMapping("/{email}")
+    public ResponseEntity<ApiResponse> getEmployeeByEmail(@PathVariable("email") String email){
         EmployeeResponseDTO employeeResponseDTO = employeeService.getEmployeeByEmail(email);
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_FETCHED,true,employeeResponseDTO));
+    }
+
+    @GetMapping("/department/{department}")
+    public ResponseEntity<ApiResponse> getEmployeesByDepartment(@PathVariable("department") String department){
+        List<EmployeeResponseDTO> employeeResponseDTOList = employeeService.getEmployeesByDepartment(department);
+        return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_FETCHED,true,employeeResponseDTOList));
     }
 
     @GetMapping
