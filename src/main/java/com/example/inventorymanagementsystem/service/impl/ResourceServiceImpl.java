@@ -62,7 +62,7 @@ public class ResourceServiceImpl implements ResourceService {
             Batch batch = null;
             if (dto.batchId() != null) {
                 batch = batchRepository.findById(dto.batchId())
-                        .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.BATCH, "id", dto.batchId()));
+                        .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.BATCH, "id", dto.batchId()));
 
                 // Validation if resourceType matches with the batch resourceType requirement
                 String incomingType = dto.resourceTypeName().trim().toLowerCase();
@@ -95,6 +95,9 @@ public class ResourceServiceImpl implements ResourceService {
             resource.setSpecification(dto.specification());
             resource.setPurchaseDate(dto.purchaseDate());
             resource.setWarrantyExpiry(dto.warrantyExpiry());
+            resource.setUnitPrice(dto.unitPrice());
+            resource.setSerialNumber(dto.serialNumber());
+            resource.setRemarks(dto.remarks());
             resource.setResourceCode(resourceCode);
             resource.setType(type);
             resource.setResourceClass(resourceClass);
@@ -114,7 +117,7 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public ResourceResponseDTO getResourceById(Long resourceId) {
         Resource resource = resourceRepository.findById(resourceId)
-                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE, "id", resourceId));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.RESOURCE, "id", resourceId));
 
         return convertToDto(resource);
     }
@@ -143,7 +146,7 @@ public class ResourceServiceImpl implements ResourceService {
     public ResourceResponseDTO updateResource(Long resourceId, ResourceUpdateDTO updateDTO) {
         // Fetches the existing resource
         Resource resource = resourceRepository.findById(resourceId)
-                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE, "id", resourceId));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.RESOURCE, "id", resourceId));
 
 
         if (updateDTO.model() != null) resource.setModel(updateDTO.model());
@@ -166,14 +169,14 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public void deleteResource(Long resourceId) {
         Resource resource = resourceRepository.findById(resourceId)
-                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE, "id", resourceId));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.RESOURCE, "id", resourceId));
         resourceRepository.delete(resource);
     }
 
     @Override
     public String generateBarcode(Long resourceId) {
         Resource resource = resourceRepository.findById(resourceId)
-                .orElseThrow(() -> new ResourceNotFoundExceptionHandler(MessageConstant.RESOURCE, "id", resourceId));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.RESOURCE, "id", resourceId));
 
         try {
             byte[] barcodeBytes = BarcodeGenerator.generateBarcodeImage(String.valueOf(resource.getResourceId()), 300, 100);
@@ -204,7 +207,10 @@ public class ResourceServiceImpl implements ResourceService {
                         getString(row.getCell(5)), // resourceTypeName
                         getString(row.getCell(6)), // resourceClassName
                         getString(row.getCell(7)), // resourceStatusName
-                        getLong(row.getCell(8)) // batchId (nullable)
+                        getDouble(row.getCell(8)),  // unitPrice
+                        getString(row.getCell(9)), // serialNumber
+                        getString(row.getCell(10)), // remarks
+                        getLong(row.getCell(11)) // batchId (nullable)
                 );
 
                 resources.add(dto);
@@ -258,6 +264,21 @@ public class ResourceServiceImpl implements ResourceService {
         return null;
     }
 
+    private Double getDouble(Cell cell) {
+        if (cell == null) return null;
+        return switch (cell.getCellType()) {
+            case NUMERIC -> cell.getNumericCellValue();
+            case STRING -> {
+                try {
+                    yield Double.parseDouble(cell.getStringCellValue().trim());
+                } catch (NumberFormatException e) {
+                    yield null;
+                }
+            }
+            default -> null;
+        };
+    }
+
 
     private static final Random r = new Random();
     public String generateUniqueResourceCode(String typePrefix) {
@@ -279,6 +300,9 @@ public class ResourceServiceImpl implements ResourceService {
                 resource.getResourceClass().getResourceClassName(),
                 resource.getResourceStatus().getResourceStatusName(),
                 resource.getBatch() != null ? resource.getBatch().getBatchCode() : null,
+                resource.getUnitPrice(),
+                resource.getSerialNumber(),
+                resource.getRemarks(),
                 resource.getCreatedAt(),
                 resource.getUpdatedAt()
         );

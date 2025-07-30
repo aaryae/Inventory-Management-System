@@ -33,6 +33,16 @@ public record ResourceRequestDTO(
         @NotBlank(message = "Resource status name is required!")
         String resourceStatusName,
 
+        @NotNull(message = "Unit price is required!")
+        Double unitPrice,
+
+        @NotBlank(message = "Serial number is required!")
+        @Size(min = 2, max = 50)
+        String serialNumber,
+
+        @Size(min = 5, max = 60)
+        String remarks,
+
         Long batchId
 ){
 }

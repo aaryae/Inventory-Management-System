@@ -46,6 +46,16 @@ public class Resource {
     @Column(name = "warrantyExpiry", columnDefinition = "text")
     private LocalDate warrantyExpiry;
 
+    @Column(name = "unit_price", nullable = false)
+    private Double unitPrice;
+
+    @Column(name = "serial_number", nullable = false, unique = true, length = 50)
+    private String serialNumber;
+
+    @Size(min = 5, max = 60)
+    @Column(name = "remarks")
+    private String remarks;
+
     @CreatedDate
     @Column(name = "createdAt", updatable = false, columnDefinition = "timestamp")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")

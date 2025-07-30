@@ -4,6 +4,8 @@ import com.example.inventorymanagementsystem.dtos.response.ApiResponse;
 import com.example.inventorymanagementsystem.dtos.response.resource.ResourceResponseDTO;
 import com.example.inventorymanagementsystem.helper.MessageConstant;
 import com.example.inventorymanagementsystem.service.SearchService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +17,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/resources")
 @RequiredArgsConstructor
+@Tag(name = "Search API", description = "API for searching resource")
 public class SearchController {
 
     private final SearchService searchService;
 
     @GetMapping("/filter")
+    @Operation(summary = "Search resources")
     public ResponseEntity<ApiResponse> filterResources(
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) String model,
