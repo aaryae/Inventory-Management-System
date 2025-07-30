@@ -2,7 +2,6 @@ package com.example.inventorymanagementsystem.config;
 
 import com.example.inventorymanagementsystem.security.filters.JwtAuthenticationFilter;
 import com.example.inventorymanagementsystem.security.filters.OAuthValidationFilter;
-import com.example.inventorymanagementsystem.security.handlers.CustomOAuth2SuccessHandler;
 import com.example.inventorymanagementsystem.service.impl.CustomOidcUserService;
 import com.example.inventorymanagementsystem.service.security.JwtService;
 import lombok.RequiredArgsConstructor;
