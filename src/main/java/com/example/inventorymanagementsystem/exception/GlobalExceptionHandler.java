@@ -4,6 +4,7 @@ package com.example.inventorymanagementsystem.exception;
 import com.example.inventorymanagementsystem.dtos.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -102,6 +103,13 @@ public class GlobalExceptionHandler   {
 
         return ResponseEntity.badRequest().body(
                 new ApiResponse("Validation failed", false, errors)
+        );
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse> handleInvalidFormat(HttpMessageNotReadableException ex) {
+        return ResponseEntity.badRequest().body(
+                new ApiResponse("Invalid input format! Please ensure all numeric fields are valid numbers.", false)
         );
     }
 

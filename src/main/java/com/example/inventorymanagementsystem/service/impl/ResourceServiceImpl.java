@@ -18,10 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ResourceServiceImpl implements ResourceService {
@@ -43,52 +41,65 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public List<ResourceResponseDTO> createResources(List<ResourceRequestDTO> requestDTOList) {
 
-        List<Resource> resourceToSave = new ArrayList<>();
-
         if (requestDTOList.size() > 1 && requestDTOList.getFirst().batchId() == null) {
             throw new InvalidBatchException("Cannot add multiple resources without assigning a batchId.");
         }
 
+        // Step 1: Group resources by batchId
+        Map<Long, List<ResourceRequestDTO>> groupedByBatchId = requestDTOList.stream()
+                .filter(resourceDTO -> resourceDTO.batchId() != null)
+                .collect(Collectors.groupingBy(ResourceRequestDTO::batchId));
+
+        // Step 2: Validate each batch group
+        Set<String> generatedCodes = new HashSet<>();
+
+        for (Map.Entry<Long, List<ResourceRequestDTO>> entry : groupedByBatchId.entrySet()) {
+            Long batchId = entry.getKey();
+            List<ResourceRequestDTO> group = entry.getValue();
+
+            Batch batch = batchRepository.findById(batchId)
+                    .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.BATCH, "id", batchId));
+
+            String batchType = batch.getType().getResourceTypeName().trim().toLowerCase();
+
+            // Ensure all resources in this batch match the expected type
+            for (ResourceRequestDTO dto : group) {
+                String incomingType = dto.resourceTypeName().trim().toLowerCase();
+                if (!incomingType.equals(batchType)) {
+                    throw new InvalidBatchException("Resource type '" + incomingType + "' does not match batch type '" + batchType + "' for batch ID " + batchId);
+                }
+            }
+
+            int currentCount = resourceRepository.countByBatch(batch);
+            int newCount = group.size();
+            int total = currentCount + newCount;
+
+            if (total > batch.getQuantity()) {
+                throw new BatchLimitException("Cannot add " + newCount + " resources to batch " + batch.getBatchCode() +
+                        ". Batch capacity of " + batch.getQuantity() + " would be exceeded (currently " + currentCount + ").");
+            } else if (total < batch.getQuantity()) {
+                throw new BatchLimitException("Batch '" + batch.getBatchCode() + "' must be filled exactly with " +
+                        batch.getQuantity() + " items. You're adding " + total + ".");
+            }
+        }
+
+        // Step 3: Convert DTOs to Resource entities
+        List<Resource> resourceToSave = new ArrayList<>();
 
         for (ResourceRequestDTO dto : requestDTOList) {
-            //Validation of master data
-            ResourceType type = masterDataService.getResourceTypeByName(requestDTOList.getFirst().resourceTypeName());
-            ResourceClass resourceClass = masterDataService.getResourceClassByName(requestDTOList.getFirst().resourceClassName());
-            ResourceStatus status = masterDataService.getResourceStatusByName(requestDTOList.getFirst().resourceStatusName());
+            ResourceType type = masterDataService.getResourceTypeByName(dto.resourceTypeName());
+            ResourceClass resourceClass = masterDataService.getResourceClassByName(dto.resourceClassName());
+            ResourceStatus status = masterDataService.getResourceStatusByName(dto.resourceStatusName());
 
-
-
-            // Fetching the batch
             Batch batch = null;
             if (dto.batchId() != null) {
                 batch = batchRepository.findById(dto.batchId())
                         .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.BATCH, "id", dto.batchId()));
-
-                // Validation if resourceType matches with the batch resourceType requirement
-                String incomingType = dto.resourceTypeName().trim().toLowerCase();
-                String batchType = batch.getType().getResourceTypeName().trim().toLowerCase();
-                if (!incomingType.equals(batchType)){
-                    throw new InvalidBatchException("Resource type '" + incomingType + "' does not meet batch's type '" + batchType + "'.");
-                }
-
-                int currentCount = resourceRepository.countByBatch(batch);
-                int incomingCount = requestDTOList.size();
-                int totalAfterAddition = currentCount + incomingCount;
-
-                if (totalAfterAddition > batch.getQuantity()) {
-                    throw new BatchLimitException("Cannot add " + incomingCount + " resources. Batch capacity of " + batch.getQuantity() +
-                            " would be exceeded (Currently " + currentCount + ").");
-                } else if (totalAfterAddition < batch.getQuantity()) {
-                    throw new BatchLimitException("Batch must be filled exactly with " + batch.getQuantity() +
-                            ", but you are adding " + totalAfterAddition + " resources.");
-                }
             }
 
+            String resourceCode = generateUniqueResourceCode(type.getResourceTypeName(), generatedCodes);
 
-            // Generating the resource code
-            String resourceCode = generateUniqueResourceCode(type.getResourceTypeName());
 
-            // Creating resource entity
             Resource resource = new Resource();
             resource.setBrand(dto.brand());
             resource.setModel(dto.model());
@@ -107,12 +118,10 @@ public class ResourceServiceImpl implements ResourceService {
             resourceToSave.add(resource);
         }
 
-        // Saving all in the repository
         List<Resource> savedResources = resourceRepository.saveAll(resourceToSave);
-
-        // Map to the ResponseDTO
         return savedResources.stream().map(this::convertToDto).toList();
     }
+
 
     @Override
     public ResourceResponseDTO getResourceById(Long resourceId) {
@@ -281,11 +290,26 @@ public class ResourceServiceImpl implements ResourceService {
 
 
     private static final Random r = new Random();
-    public String generateUniqueResourceCode(String typePrefix) {
+
+    public String generateUniqueResourceCode(String typePrefix, Set<String> existingCodes) {
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        int random = r.nextInt(999);
-        return typePrefix.toUpperCase() + "-" + date + "-" + String.format("%03d", random);
+        String resourceCode;
+        int attempts = 0;
+
+        do {
+            int random = r.nextInt(1000); // 000 to 999
+            resourceCode = typePrefix.toUpperCase() + "-" + date + "-" + String.format("%03d", random);
+            attempts++;
+
+            if (attempts > 20) {
+                throw new RuntimeException("Failed to generate a unique resource code after 20 attempts");
+            }
+        } while (existingCodes.contains(resourceCode) || resourceRepository.existsByResourceCode(resourceCode));
+
+        existingCodes.add(resourceCode);
+        return resourceCode;
     }
+
 
     private ResourceResponseDTO convertToDto(Resource resource) {
         return new ResourceResponseDTO(
