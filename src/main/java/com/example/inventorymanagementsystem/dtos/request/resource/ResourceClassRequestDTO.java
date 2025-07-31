@@ -1,4 +1,9 @@
 package com.example.inventorymanagementsystem.dtos.request.resource;
 
-public record ResourceClassRequestDTO(String className) {
+import jakarta.validation.constraints.NotBlank;
+
+public record ResourceClassRequestDTO(
+        @NotBlank(message = "Please enter class name!")
+        String className
+) {
 }

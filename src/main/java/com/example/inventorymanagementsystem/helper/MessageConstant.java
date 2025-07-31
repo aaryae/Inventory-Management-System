@@ -11,10 +11,13 @@ public final class MessageConstant {
     public static final String SUCCESSFULLY_DELETED = "Successfully Deleted Data";
     public static final String SUCCESSFULLY_UPDATED = "Successfully Updated Data";
     public static final String SUCCESSFULLY_ADDED = "Successfully Added Data";
+    public static final String SUCCESSFULLY_ASSIGNED = "Successfully Assigned Resource";
+    public static final String SUCCESSFULLY_RETURNED = "Successfully Returned Resource";
     public static final String RESOURCE = "Resource";
     public static final String BATCH = "Batch";
     public static final String RESOURCE_TYPE = "ResourceType";
     public static final String RESOURCE_CLASS = "ResourceClass";
     public static final String RESOURCE_STATUS = "ResourceStatus";
     public static final String EMPLOYEE = "Employee";
+    public static final String BARCODE_GENERATION_FAILED = "Barcode Generation Failed";
 }

@@ -7,14 +7,16 @@ import com.example.inventorymanagementsystem.dtos.response.resource.ResourceResp
 import com.example.inventorymanagementsystem.helper.MessageConstant;
 import com.example.inventorymanagementsystem.service.BatchService;
 import com.example.inventorymanagementsystem.service.impl.BatchServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/batches")
+@RequestMapping("/api/batches")
 @Tag(name = "Batch APIs", description = "APIs for batch")
 
 public class BatchController {
@@ -26,24 +28,28 @@ public class BatchController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse> createBatch(@RequestBody BatchRequestDTO requestDTO){
+    @Operation(summary = "Create the batch for resources")
+    public ResponseEntity<ApiResponse> createBatch(@RequestBody @Valid BatchRequestDTO requestDTO){
         BatchResponseDTO responseDTO = batchService.createBatch(requestDTO);
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_ADDED, true, responseDTO));
     }
 
     @GetMapping("/{batchId}")
+    @Operation(summary = "Get the existing batch by its id")
     public ResponseEntity<ApiResponse> getBatchById(@PathVariable("batchId") Long batchId){
         BatchResponseDTO responseDTO = batchService.getBatchById(batchId);
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_FETCHED, true, responseDTO));
     }
 
     @GetMapping
+    @Operation(summary = "Get all the batches")
     public ResponseEntity<ApiResponse> getAllBatches(){
         List<BatchResponseDTO> responseDTOList = batchService.getAllBatches();
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_FETCHED, true, responseDTOList));
     }
 
     @GetMapping("/{batchId}/resources")
+    @Operation(summary = "Get the resources in specific batch")
     public ResponseEntity<ApiResponse> getResourcesByBatch(@PathVariable Long batchId){
         List<ResourceResponseDTO> responseDTOList = batchService.getResourcesByBatchId(batchId);
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_FETCHED, true, responseDTOList));

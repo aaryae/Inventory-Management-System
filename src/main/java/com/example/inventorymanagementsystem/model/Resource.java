@@ -43,8 +43,17 @@ public class Resource {
     @Column(name = "purchaseDate", nullable = false, columnDefinition = "text")
     private LocalDate purchaseDate;
 
-    @Column(name = "warrantyExpiry", nullable = false, columnDefinition = "text")
+    @Column(name = "warrantyExpiry", columnDefinition = "text")
     private LocalDate warrantyExpiry;
+
+    @Column(name = "unit_price", nullable = false)
+    private Double unitPrice;
+
+    @Column(name = "serial_number", nullable = false, unique = true, length = 50)
+    private String serialNumber;
+
+    @Column(name = "remarks")
+    private String remarks;
 
     @CreatedDate
     @Column(name = "createdAt", updatable = false, columnDefinition = "timestamp")

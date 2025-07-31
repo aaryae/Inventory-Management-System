@@ -1,5 +1,10 @@
 package com.example.inventorymanagementsystem.dtos.request.resource;
 
 
-public record ResourceStatusRequestDTO(String statusName){
+import jakarta.validation.constraints.NotBlank;
+
+public record ResourceStatusRequestDTO(
+        @NotBlank(message = "Please enter status!")
+        String statusName
+){
 }

@@ -1,11 +1,11 @@
 package com.example.inventorymanagementsystem.service;
 
-import com.example.inventorymanagementsystem.dtos.response.ApiResponse;
-import org.springframework.http.ResponseEntity;
+import com.example.inventorymanagementsystem.dtos.response.resource.ResourceResponseDTO;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface SearchService {
 
-    public ResponseEntity<ApiResponse> filterResources(String brand, String model, LocalDate purchaseDate, String specification);
+    public List<ResourceResponseDTO> filterResources(String brand, String model, LocalDate purchaseDate, String specification);
 }

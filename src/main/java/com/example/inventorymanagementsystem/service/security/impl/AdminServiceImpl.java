@@ -23,14 +23,14 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("User not found with id: " + id));
-        return new UserResponse(user.getId(), user.getEmail(), user.getRole());
+                .orElseThrow(() -> new DataNotFoundException("User not found with id " + id));
+        return new UserResponse(user.getUsername(), user.getId(), user.getEmail(), user.getRole());
     }
 
     @Override
     public void updateUserById(Long id, UserResponse userResponse) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new DataNotFoundException("User not found with id " + id));
 
         user.setEmail(userResponse.getEmail());
         userRepository.save(user);
@@ -39,7 +39,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void deleteUserById(Long id) {
         userRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new DataNotFoundException("User not found with id " + id));
         userRepository.deleteById(id);
     }
 

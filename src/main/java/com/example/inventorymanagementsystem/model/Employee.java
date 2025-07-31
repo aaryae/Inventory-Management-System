@@ -56,5 +56,5 @@ public class Employee {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "employee",  cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Assignment> assignments ;
+    private List<Assignment> assignments;
 }
