@@ -1,6 +1,6 @@
 package com.example.inventorymanagementsystem.controller.resource;
 
-import com.example.inventorymanagementsystem.dtos.ResourceUpdateDTO;
+import com.example.inventorymanagementsystem.dtos.request.resource.ResourceUpdateRequestDTO;
 import com.example.inventorymanagementsystem.dtos.request.resource.ResourceRequestDTO;
 import com.example.inventorymanagementsystem.dtos.request.resource.ResourceRequestWrapperDTO;
 import com.example.inventorymanagementsystem.dtos.response.ApiResponse;
@@ -62,7 +62,7 @@ public class ResourceController {
 
     @PatchMapping("/{resourceId}")
     @Operation(summary = "Update the resource details")
-    public ResponseEntity<ApiResponse> updateResource(@PathVariable("resourceId") Long resourceId, @RequestBody ResourceUpdateDTO resourceUpdate){
+    public ResponseEntity<ApiResponse> updateResource(@PathVariable("resourceId") Long resourceId, @RequestBody ResourceUpdateRequestDTO resourceUpdate){
         ResourceResponseDTO responseDTO = resourceService.updateResource(resourceId, resourceUpdate);
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_UPDATED, true, responseDTO));
     }

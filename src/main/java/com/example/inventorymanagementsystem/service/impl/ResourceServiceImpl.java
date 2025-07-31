@@ -1,6 +1,6 @@
 package com.example.inventorymanagementsystem.service.impl;
 
-import com.example.inventorymanagementsystem.dtos.ResourceUpdateDTO;
+import com.example.inventorymanagementsystem.dtos.request.resource.ResourceUpdateRequestDTO;
 import com.example.inventorymanagementsystem.dtos.request.resource.ResourceRequestDTO;
 import com.example.inventorymanagementsystem.dtos.response.resource.ResourceResponseDTO;
 import com.example.inventorymanagementsystem.exception.*;
@@ -143,7 +143,7 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    public ResourceResponseDTO updateResource(Long resourceId, ResourceUpdateDTO updateDTO) {
+    public ResourceResponseDTO updateResource(Long resourceId, ResourceUpdateRequestDTO updateDTO) {
         // Fetches the existing resource
         Resource resource = resourceRepository.findById(resourceId)
                 .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.RESOURCE, "id", resourceId));

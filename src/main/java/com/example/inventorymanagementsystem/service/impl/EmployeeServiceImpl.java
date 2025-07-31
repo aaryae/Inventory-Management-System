@@ -1,6 +1,6 @@
 package com.example.inventorymanagementsystem.service.impl;
 
-import com.example.inventorymanagementsystem.dtos.EmployeeUpdateDTO;
+import com.example.inventorymanagementsystem.dtos.request.employee.EmployeeUpdateRequestDTO;
 import com.example.inventorymanagementsystem.dtos.request.employee.EmployeeRequestDTO;
 import com.example.inventorymanagementsystem.dtos.response.employee.EmployeeResponseDTO;
 import com.example.inventorymanagementsystem.exception.ConflictException;
@@ -111,7 +111,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public EmployeeResponseDTO updateEmployee(Long employeeId, EmployeeUpdateDTO updateDTO) {
+    public EmployeeResponseDTO updateEmployee(Long employeeId, EmployeeUpdateRequestDTO updateDTO) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new EmployeeNotFoundException(
                         MessageConstant.EMPLOYEE, "id", employeeId));

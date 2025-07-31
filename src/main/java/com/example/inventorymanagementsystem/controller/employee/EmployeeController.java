@@ -1,6 +1,6 @@
 package com.example.inventorymanagementsystem.controller.employee;
 
-import com.example.inventorymanagementsystem.dtos.EmployeeUpdateDTO;
+import com.example.inventorymanagementsystem.dtos.request.employee.EmployeeUpdateRequestDTO;
 import com.example.inventorymanagementsystem.dtos.request.employee.EmployeeRequestDTO;
 import com.example.inventorymanagementsystem.dtos.response.ApiResponse;
 import com.example.inventorymanagementsystem.dtos.response.employee.EmployeeResponseDTO;
@@ -39,14 +39,14 @@ public class EmployeeController {
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_ADDED,true,employeeResponseDTO));
     }
 
-    @GetMapping("/{employeeId}")
+    @GetMapping("id/{employeeId}")
     @Operation(summary = "Get the employee details by id")
     public ResponseEntity<ApiResponse> getEmployeeById(@PathVariable("employeeId") Long employeeId){
         EmployeeResponseDTO employeeResponseDTO = employeeService.getEmployeeById(employeeId);
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_FETCHED,true,employeeResponseDTO));
     }
 
-    @GetMapping("/{email}")
+    @GetMapping("email/{email}")
     @Operation(summary = "Get employee details by email")
     public ResponseEntity<ApiResponse> getEmployeeByEmail(@PathVariable("email") String email){
         EmployeeResponseDTO employeeResponseDTO = employeeService.getEmployeeByEmail(email);
@@ -67,7 +67,7 @@ public class EmployeeController {
     }
     @PutMapping("/{employeeId}")
     @Operation(summary = "Update employee details")
-    public ResponseEntity<ApiResponse> updateEmployees(@PathVariable("employeeId") Long employeeId, @RequestBody EmployeeUpdateDTO employeeUpdateDTO){
+    public ResponseEntity<ApiResponse> updateEmployees(@PathVariable("employeeId") Long employeeId, @RequestBody EmployeeUpdateRequestDTO employeeUpdateDTO){
         EmployeeResponseDTO employeeResponseDTO = employeeService.updateEmployee(employeeId, employeeUpdateDTO);
         return ResponseEntity.ok(new ApiResponse(MessageConstant.SUCCESSFULLY_UPDATED,true,employeeResponseDTO));
     }
