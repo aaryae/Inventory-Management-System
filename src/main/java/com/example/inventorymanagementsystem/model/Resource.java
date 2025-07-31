@@ -52,7 +52,6 @@ public class Resource {
     @Column(name = "serial_number", nullable = false, unique = true, length = 50)
     private String serialNumber;
 
-    @Size(min = 5, max = 60)
     @Column(name = "remarks")
     private String remarks;
 

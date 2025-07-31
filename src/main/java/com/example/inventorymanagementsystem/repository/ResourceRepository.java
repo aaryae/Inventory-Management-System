@@ -24,4 +24,6 @@ public interface ResourceRepository extends JpaRepository<Resource, Long> , JpaS
 
     @Query("SELECT r.specification, COUNT(r) FROM Resource r GROUP BY r.specification")
     List<Object[]> countBySpecification();
+
+    boolean existsByResourceCode(String resourceCode);
 }

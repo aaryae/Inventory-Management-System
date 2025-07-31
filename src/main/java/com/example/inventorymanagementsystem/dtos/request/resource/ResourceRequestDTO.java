@@ -2,6 +2,7 @@ package com.example.inventorymanagementsystem.dtos.request.resource;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
@@ -33,6 +34,7 @@ public record ResourceRequestDTO(
         @NotBlank(message = "Resource status name is required!")
         String resourceStatusName,
 
+        @Positive(message = "Price must be positive!")
         @NotNull(message = "Unit price is required!")
         Double unitPrice,
 
@@ -40,7 +42,6 @@ public record ResourceRequestDTO(
         @Size(min = 2, max = 50)
         String serialNumber,
 
-        @Size(min = 5, max = 60)
         String remarks,
 
         Long batchId
