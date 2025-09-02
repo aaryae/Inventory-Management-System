@@ -6,7 +6,7 @@ import com.example.inventorymanagementsystem.dtos.request.security.RefreshTokenR
 import com.example.inventorymanagementsystem.dtos.request.security.RegisterRequest;
 import com.example.inventorymanagementsystem.exception.DataNotFoundException;
 import com.example.inventorymanagementsystem.exception.DuplicateResourceException;
-import com.example.inventorymanagementsystem.exception.ResourceNotFoundExceptionHandler;
+import com.example.inventorymanagementsystem.exception.ResourceNotFoundException;
 import com.example.inventorymanagementsystem.exception.ValidationException;
 import com.example.inventorymanagementsystem.helper.Role;
 import com.example.inventorymanagementsystem.model.User;
@@ -52,10 +52,10 @@ public class AuthServiceImpl implements AuthService {
 
     public Map<String, String> login(LoginRequest loginRequest) {
         User user = userRepository.findByEmail(loginRequest.email())
-                .orElseThrow(() -> new ResourceNotFoundExceptionHandler("User", "username", loginRequest.email()));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", loginRequest.email()));
 
         if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
-            throw new ResourceNotFoundExceptionHandler("User", "credentials", "Invalid username or password");
+            throw new ResourceNotFoundException("User", "credentials", "Invalid username or password");
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -70,20 +70,21 @@ public class AuthServiceImpl implements AuthService {
             mailService.sendPasswordAboutToExpire(user);
         }
 
-        String token = jwtService.generateToken(user);
+        String token = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
         Map<String, String> response = new HashMap<>();
         response.put("accessToken", token);
         response.put("refreshToken", refreshToken);
         response.put("username",user.getUsername());
+        response.put("role",user.getRole().name());
         return response;
     }
 
     @Override
     public void sendResetCode(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundExceptionHandler("User", "email", email));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
 
         mailService.sendPasswordReset(user);
     }
@@ -91,7 +92,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void verifyAndResetPassword(PasswordResetRequest request) {
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new ResourceNotFoundExceptionHandler("User", "email", request.email()));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", request.email()));
 
         boolean valid = mailService.verify(request.code(), user);
 
@@ -104,23 +105,24 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Map<String, String> refreshToken(RefreshTokenRequest request) {
-        String email = jwtService.validateToken(request.accessToken());
+        String refreshToken = request.refreshToken();
 
-        if (email.startsWith("error:")) {
-            throw new ValidationException("Invalid refresh token");
+        if (jwtService.isAccessToken(refreshToken)) {
+            throw new ValidationException("Invalid refresh token: received access token instead.");
         }
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundExceptionHandler("User", "email", email));
+        String email = jwtService.extractAllClaims(refreshToken).getSubject();
 
-        String newAccessToken = jwtService.generateRefreshToken(user);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+
+        String newAccessToken = jwtService.generateAccessToken(user);
 
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", newAccessToken);
         return tokens;
     }
-
-
 }
 
 

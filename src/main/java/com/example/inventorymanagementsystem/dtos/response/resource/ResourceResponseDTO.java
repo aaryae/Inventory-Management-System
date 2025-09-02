@@ -18,6 +18,9 @@ public record ResourceResponseDTO(
         String resourceClass,
         String resourceStatus,
         String batchCode,
+        Double unitPrice,
+        String serialNumber,
+        String remarks,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {

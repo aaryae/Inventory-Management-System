@@ -5,7 +5,7 @@ import com.example.inventorymanagementsystem.dtos.request.security.LoginRequest;
 import com.example.inventorymanagementsystem.dtos.request.security.RefreshTokenRequest;
 import com.example.inventorymanagementsystem.dtos.request.security.RegisterRequest;
 import com.example.inventorymanagementsystem.dtos.response.ApiResponse;
-import com.example.inventorymanagementsystem.exception.ResourceNotFoundExceptionHandler;
+import com.example.inventorymanagementsystem.exception.ResourceNotFoundException;
 import com.example.inventorymanagementsystem.exception.ValidationException;
 import com.example.inventorymanagementsystem.service.security.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,7 +63,7 @@ public class AuthController {
         try {
             Map<String, String> refreshed = authService.refreshToken(token);
             return ResponseEntity.ok(new ApiResponse("Successfully created RefreshToken", true, refreshed));
-        } catch (ResourceNotFoundExceptionHandler | ValidationException ex) {
+        } catch (ResourceNotFoundException | ValidationException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(ex.getMessage(), false));
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
